@@ -2,7 +2,7 @@
 
 import { useChat } from "ai/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send } from "lucide-react";
+import { Send, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,77 +14,215 @@ import { MessageContent } from "./message-content";
 const initialMessages = [
   {
     id: "1",
-    role: "user",
-    content: "What are the steps for setting up my work laptop?",
-  },
-  {
-    id: "2",
     role: "assistant",
-    content: `Here's how to set up your work laptop:
-
-1. Connect to the company WiFi using your employee ID as username
-2. Log in with your temporary credentials (check your work email)
-3. Install the required software from the company portal (portal.company.com)
-4. Set up 2FA using the Microsoft Authenticator app
-5. Join the company Slack workspace
-
-Let me know if you need help with any of these steps!`,
+    content: "Welcome to Axel! I'll be your personal assistant at TechCorp.",
     documents: [
       {
         id: 1,
-        title: "IT Onboarding Guide 2024",
+        title: "TechCorp Welcome Guide",
         relevance: 95,
       },
       {
         id: 2,
-        title: "Software Installation Manual",
-        relevance: 88,
+        title: "Employee Handbook",
+        relevance: 85,
       },
+    ],
+  },
+  {
+    id: "2",
+    role: "assistant",
+    content:
+      "Hi Sarah, I've set up a personalized onboarding checklist for you. Let's begin by setting up your development environment.",
+    documents: [
       {
         id: 3,
-        title: "Security Protocols",
-        relevance: 82,
+        title: "Onboarding Checklist",
+        relevance: 98,
+      },
+      {
+        id: 4,
+        title: "Development Setup Guide",
+        relevance: 92,
       },
     ],
   },
   {
     id: "3",
     role: "user",
-    content: "How do I request time off?",
+    content: "Great! What do I need to do?",
   },
   {
     id: "4",
     role: "assistant",
-    content: `To request time off:
-
-1. Log into Workday
-2. Navigate to "Time Off" section
-3. Select the dates and type of leave (vacation, sick, etc.)
-4. Add any necessary comments
-5. Submit for manager approval
-
-Remember: Please give at least 2 weeks notice for vacation requests when possible. Sick leave can be requested on the same day.`,
+    content:
+      "I'll guide you through the IDE setup process. Would you like me to guide you through each step?",
     documents: [
       {
-        id: 4,
-        title: "Employee Leave Policy",
+        id: 5,
+        title: "IDE Installation Guide",
         relevance: 96,
       },
       {
-        id: 5,
-        title: "Workday User Guide",
-        relevance: 85,
+        id: 6,
+        title: "Development Tools Setup",
+        relevance: 90,
+      },
+    ],
+  },
+  {
+    id: "5",
+    role: "user",
+    content: "How do I set up my local development environment?",
+  },
+  {
+    id: "6",
+    role: "assistant",
+    content:
+      "I'll show you how to set up your local environment. Let me know if you need help with any of these steps!",
+    documents: [
+      {
+        id: 7,
+        title: "Local Environment Setup Guide",
+        relevance: 98,
       },
       {
-        id: 6,
-        title: "HR Guidelines 2024",
-        relevance: 78,
+        id: 8,
+        title: "Development Best Practices",
+        relevance: 85,
+      },
+    ],
+  },
+  {
+    id: "7",
+    role: "assistant",
+    content:
+      "Sarah, let me show you your team structure and the meetings I've scheduled for your onboarding this week.",
+    documents: [
+      {
+        id: 9,
+        title: "Team Organization Chart",
+        relevance: 95,
+      },
+      {
+        id: 10,
+        title: "Meeting Schedule Template",
+        relevance: 88,
+      },
+    ],
+  },
+  {
+    id: "8",
+    role: "user",
+    content: "Yes, please show me my calendar.",
+  },
+  {
+    id: "9",
+    role: "assistant",
+    content: "Here's your schedule. You can adjust meeting times if needed.",
+    documents: [
+      {
+        id: 11,
+        title: "Onboarding Calendar",
+        relevance: 96,
+      },
+      {
+        id: 12,
+        title: "Meeting Guidelines",
+        relevance: 82,
+      },
+    ],
+  },
+  {
+    id: "10",
+    role: "assistant",
+    content:
+      "Your team's standup meeting starts in 10 minutes. The standup will be in Meeting Room 3 or join via Zoom: meeting-id-123",
+    documents: [
+      {
+        id: 13,
+        title: "Sprint Progress Report",
+        relevance: 94,
+      },
+      {
+        id: 14,
+        title: "Standup Meeting Protocol",
+        relevance: 88,
+      },
+    ],
+  },
+  {
+    id: "11",
+    role: "user",
+    content:
+      "Thanks, Axel! Can you also remind me to review the code repository afterward?",
+  },
+  {
+    id: "12",
+    role: "assistant",
+    content: "Done! I'll remind you after the meeting.",
+    documents: [
+      {
+        id: 15,
+        title: "Repository Access Guide",
+        relevance: 90,
+      },
+      {
+        id: 16,
+        title: "Code Review Guidelines",
+        relevance: 85,
+      },
+    ],
+  },
+  {
+    id: "13",
+    role: "user",
+    content: "Axel, can you show me my onboarding progress?",
+  },
+  {
+    id: "14",
+    role: "assistant",
+    content:
+      "You've completed 75% of your onboarding tasks. Would you like to tackle the HR documentation next?",
+    documents: [
+      {
+        id: 17,
+        title: "Onboarding Progress Tracker",
+        relevance: 97,
+      },
+      {
+        id: 18,
+        title: "HR Documentation Guide",
+        relevance: 92,
+      },
+    ],
+  },
+  {
+    id: "15",
+    role: "user",
+    content: "Yes, let's do that.",
+  },
+  {
+    id: "16",
+    role: "assistant",
+    content:
+      "Great! You can access all the necessary forms at: hr.techcorp.com/onboarding. Let me know if you have any questions!",
+    documents: [
+      {
+        id: 19,
+        title: "HR Forms and Policies",
+        relevance: 96,
+      },
+      {
+        id: 20,
+        title: "Employee Documentation",
+        relevance: 88,
       },
     ],
   },
 ];
 
-export function Chat() {
+export function Chat({ onShowInstructions }) {
   const {
     messages: aiMessages,
     input,
@@ -106,6 +244,11 @@ export function Chat() {
       setMessages([...initialMessages, ...aiMessages]);
     }
   }, [aiMessages]);
+
+  // Check if a message contains step-by-step instructions
+  const hasInstructions = (content) => {
+    return content.includes("\n1.") || content.includes("steps");
+  };
 
   return (
     <motion.div
@@ -138,6 +281,18 @@ export function Chat() {
                     } rounded-lg p-4`}
                   >
                     <MessageContent content={message.content} />
+                    {message.role === "assistant" &&
+                      hasInstructions(message.content) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onShowInstructions(true)}
+                          className="mt-3 text-[#00ff9d] hover:text-[#00ff9d] hover:bg-[#00ff9d]/10"
+                        >
+                          <ListChecks className="w-4 h-4 mr-2" />
+                          Show Instructions
+                        </Button>
+                      )}
                   </div>
                 </div>
                 {message.role === "assistant" && (

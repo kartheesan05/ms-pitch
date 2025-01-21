@@ -9,16 +9,28 @@ export function MessageContent({ content }) {
   const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
+    // Remove numbered lists from content if present
+    let processedContent = content;
+    if (content.includes("\n1.")) {
+      const lines = content.split("\n");
+      const nonStepLines = lines.filter((line) => {
+        const isStep = line.match(/^\d+\.\s+.+/);
+        const isSubStep = line.match(/^\s*-\s+.+/);
+        return !isStep && !isSubStep;
+      });
+      processedContent = nonStepLines.join("\n").trim();
+    }
+
     if (isPresent) {
       let index = 0;
       const interval = setInterval(() => {
-        setDisplayedContent(content.slice(0, index));
+        setDisplayedContent(processedContent.slice(0, index));
         index++;
-        if (index > content.length) {
+        if (index > processedContent.length) {
           clearInterval(interval);
           setIsDone(true);
         }
-      }, 20); // Faster typing speed
+      }, 20);
       return () => clearInterval(interval);
     }
   }, [content, isPresent]);
