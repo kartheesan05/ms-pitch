@@ -183,7 +183,7 @@ const initialMessages = [
     id: "14",
     role: "assistant",
     content:
-      "You've completed 75% of your onboarding tasks. Would you like to tackle the HR documentation next?",
+      "You've completed 3 of 4 onboarding tasks (75% complete). Here's your progress:\n\nCompleted:\n- Development environment setup\n- Team introductions\n- Project access and tools\n\nRemaining:\n- HR Documentation\n\nWould you like to tackle the HR documentation next?",
     documents: [
       {
         id: 17,
@@ -254,10 +254,10 @@ export function Chat({ onShowInstructions }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto"
+      className="max-w-4xl mx-auto h-[calc(100vh-96px)]"
     >
-      <Card className="bg-gray-900/50 border-gray-800">
-        <div className="h-[600px] overflow-y-auto p-4 space-y-6">
+      <Card className="bg-gray-900/50 border-gray-800 h-full flex flex-col">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
               <motion.div
@@ -320,7 +320,8 @@ export function Chat({ onShowInstructions }) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black font-medium transition-colors duration-200"
+              variant="custom"
+              className="min-w-[40px] bg-[#00ff9d] hover:bg-[#00ff9d]/90 text-black font-medium transition-colors duration-200 disabled:bg-gray-600 disabled:text-gray-400"
             >
               <Send className="w-4 h-4" />
             </Button>

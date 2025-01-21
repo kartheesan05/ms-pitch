@@ -2,11 +2,32 @@
 
 import { motion, usePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { ProgressIndicator } from "./progress-indicator";
 
 export function MessageContent({ content }) {
   const [displayedContent, setDisplayedContent] = useState("");
   const [isPresent] = usePresence();
   const [isDone, setIsDone] = useState(false);
+
+  // Check if content contains progress information
+  const getProgressInfo = (content) => {
+    const progressMatch = content.match(/(\d+)%|(\d+)\s*of\s*(\d+)/);
+    if (progressMatch) {
+      if (progressMatch[1]) {
+        // Percentage format
+        const percentage = parseInt(progressMatch[1]);
+        const total = 100;
+        return { progress: Math.round((percentage / 100) * total), total };
+      } else if (progressMatch[2] && progressMatch[3]) {
+        // X of Y format
+        return {
+          progress: parseInt(progressMatch[2]),
+          total: parseInt(progressMatch[3]),
+        };
+      }
+    }
+    return null;
+  };
 
   useEffect(() => {
     // Remove numbered lists from content if present
@@ -35,22 +56,32 @@ export function MessageContent({ content }) {
     }
   }, [content, isPresent]);
 
+  const progressInfo = getProgressInfo(content);
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="prose prose-invert max-w-none"
-    >
-      {displayedContent}
-      {!isDone && (
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 0.8 }}
-          className="inline-block w-2 h-4 bg-[#00ff9d] ml-1"
+    <div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="prose prose-invert max-w-none"
+      >
+        {displayedContent}
+        {!isDone && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 0.8 }}
+            className="inline-block w-2 h-4 bg-[#00ff9d] ml-1"
+          />
+        )}
+      </motion.div>
+      {isDone && progressInfo && (
+        <ProgressIndicator
+          progress={progressInfo.progress}
+          total={progressInfo.total}
         />
       )}
-    </motion.div>
+    </div>
   );
 }
