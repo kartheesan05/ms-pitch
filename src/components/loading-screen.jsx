@@ -6,8 +6,13 @@ import { useEffect, useState } from "react";
 
 export function LoadingScreen({ onComplete }) {
   const [isReady, setIsReady] = useState(false);
+  const [client, setClient] = useState(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setClient(true);
+    }
+
     const timer = setTimeout(() => {
       setIsReady(true);
     }, 1000);
@@ -84,27 +89,29 @@ export function LoadingScreen({ onComplete }) {
       </div>
 
       {/* Floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-[#00ff9d]/20 rounded-full"
-            initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-            }}
-            animate={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-            }}
-            transition={{
-              duration: Math.random() * 10 + 5,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-            }}
-          />
-        ))}
-      </div>
+      {client && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-[#00ff9d]/20 rounded-full"
+              initial={{
+                x: `${Math.random() * 100}vw`,
+                y: `${Math.random() * 100}vh`,
+              }}
+              animate={{
+                x: `${Math.random() * 100}vw`,
+                y: `${Math.random() * 100}vh`,
+              }}
+              transition={{
+                duration: Math.random() * 10 + 5,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }
