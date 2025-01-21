@@ -222,12 +222,63 @@ const initialMessages = [
   },
 ];
 
+// Default responses based on keywords
+const defaultResponses = [
+  {
+    keywords: ["hello", "hi", "hey", "greetings"],
+    response: "Hello! How can I help you with your onboarding today?",
+    documents: [
+      {
+        id: "default-1",
+        title: "TechCorp Welcome Guide",
+        relevance: 90,
+      },
+    ],
+  },
+  {
+    keywords: ["thank", "thanks"],
+    response: "You're welcome! Let me know if you need anything else.",
+    documents: [
+      {
+        id: "default-2",
+        title: "Support Resources",
+        relevance: 85,
+      },
+    ],
+  },
+  {
+    keywords: ["bye", "goodbye", "see you"],
+    response:
+      "Goodbye! Don't hesitate to reach out if you have more questions.",
+    documents: [
+      {
+        id: "default-3",
+        title: "Contact Information",
+        relevance: 88,
+      },
+    ],
+  },
+];
+
+// Default fallback response
+const fallbackResponse = {
+  response:
+    "I understand you have a question about that. Let me help you find the relevant information in our documentation.",
+  documents: [
+    {
+      id: "default-4",
+      title: "General Documentation",
+      relevance: 80,
+    },
+  ],
+};
+
 export function Chat({ onShowInstructions }) {
   const {
     messages: aiMessages,
     input,
     handleInputChange,
-    handleSubmit,
+    handleSubmit: originalHandleSubmit,
     isLoading,
   } = useChat();
   const [messages, setMessages] = useState(initialMessages);
@@ -238,12 +289,36 @@ export function Chat({ onShowInstructions }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Combine initial messages with AI messages
-  useEffect(() => {
-    if (aiMessages.length > 0) {
-      setMessages([...initialMessages, ...aiMessages]);
-    }
-  }, [aiMessages]);
+  // Custom submit handler with default responses
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    // Add user message
+    const userMessage = {
+      id: String(messages.length + 1),
+      role: "user",
+      content: input,
+    };
+
+    // Find matching response or use fallback
+    const lowercaseInput = input.toLowerCase();
+    const matchingResponse =
+      defaultResponses.find((response) =>
+        response.keywords.some((keyword) => lowercaseInput.includes(keyword))
+      ) || fallbackResponse;
+
+    // Add assistant response
+    const assistantMessage = {
+      id: String(messages.length + 2),
+      role: "assistant",
+      content: matchingResponse.response,
+      documents: matchingResponse.documents,
+    };
+
+    setMessages((prev) => [...prev, userMessage, assistantMessage]);
+    handleInputChange({ target: { value: "" } }); // Clear input
+  };
 
   // Check if a message contains step-by-step instructions
   const hasInstructions = (content) => {
@@ -295,7 +370,7 @@ export function Chat({ onShowInstructions }) {
                       )}
                   </div>
                 </div>
-                {message.role === "assistant" && (
+                {message.role === "assistant" && message.documents && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
