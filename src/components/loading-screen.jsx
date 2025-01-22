@@ -8,6 +8,7 @@ export function LoadingScreen({ onComplete }) {
   const [isReady, setIsReady] = useState(false);
   const [client, setClient] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [stepProgress, setStepProgress] = useState(0);
 
   const loadingSteps = [
     {
@@ -42,25 +43,35 @@ export function LoadingScreen({ onComplete }) {
       setClient(true);
     }
 
+    // Progress animation for current step
+    const progressInterval = setInterval(() => {
+      setStepProgress((prev) => {
+        if (prev < 100) return prev + 2;
+        return prev;
+      });
+    }, 20);
+
     // Sequence through the loading steps
     const stepInterval = setInterval(() => {
       setCurrentStep((prev) => {
-        if (prev < loadingSteps.length - 1) return prev + 1;
-        clearInterval(stepInterval);
+        if (prev < loadingSteps.length - 1 && stepProgress >= 100) {
+          setStepProgress(0); // Reset progress for next step
+          return prev + 1;
+        }
+        if (prev === loadingSteps.length - 1 && stepProgress >= 100) {
+          clearInterval(stepInterval);
+          clearInterval(progressInterval);
+          setIsReady(true);
+        }
         return prev;
       });
-    }, 1500);
-
-    // Set ready state after all steps
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, loadingSteps.length * 1500 + 500);
+    }, 100);
 
     return () => {
-      clearTimeout(timer);
       clearInterval(stepInterval);
+      clearInterval(progressInterval);
     };
-  }, []);
+  }, [stepProgress]);
 
   return (
     <motion.div
@@ -124,6 +135,18 @@ export function LoadingScreen({ onComplete }) {
                 {loadingSteps[currentStep].description}
               </p>
             </div>
+            {/* Progress bar */}
+            <div className="w-full max-w-md space-y-2">
+              <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${stepProgress}%` }}
+                  transition={{ duration: 0.2 }}
+                  className="h-full bg-[#00ff9d] rounded-full"
+                />
+              </div>
+            </div>
+            {/* Step indicators */}
             <div className="flex gap-2 mt-4">
               {loadingSteps.map((_, index) => (
                 <div

@@ -64,7 +64,7 @@ const initialSteps = [
 export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [steps, setSteps] = useState(initialSteps);
-  const [showSidePanel, setShowSidePanel] = useState(false);
+  const [showSidePanel, setShowSidePanel] = useState(true);
 
   const handleStepComplete = (index) => {
     setSteps((prevSteps) =>

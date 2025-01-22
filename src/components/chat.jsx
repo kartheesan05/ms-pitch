@@ -332,7 +332,7 @@ export function Chat({ onShowInstructions }) {
       className="max-w-4xl mx-auto h-[calc(100vh-96px)]"
     >
       <Card className="bg-gray-900/50 border-gray-800 h-full flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent hover:scrollbar-thumb-gray-600">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
               <motion.div
