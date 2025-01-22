@@ -10,213 +10,66 @@ import { useEffect, useRef, useState } from "react";
 import { DocumentReference } from "./document-reference";
 import { MessageContent } from "./message-content";
 
-// Pre-generated messages for demonstration
+// Mock onboarding tasks data
+const onboardingTasks = [
+  {
+    id: 1,
+    title: "Set Up Development Environment",
+    status: "incomplete",
+    progress: 0,
+    dueDate: "2024-03-20",
+    priority: "high",
+    steps: [
+      "Install VS Code and required extensions",
+      "Clone company repository",
+      "Set up local development environment",
+      "Run test project",
+    ],
+  },
+  {
+    id: 2,
+    title: "Submit Personal Documents",
+    status: "incomplete",
+    progress: 0,
+    dueDate: "2024-03-21",
+    priority: "medium",
+    documents: ["ID", "Proof of Address"],
+  },
+  {
+    id: 3,
+    title: "Complete Compliance Training",
+    status: "incomplete",
+    progress: 0,
+    dueDate: "2024-03-22",
+    priority: "medium",
+    quiz: {
+      required: true,
+      passingScore: 80,
+    },
+  },
+  {
+    id: 4,
+    title: "Read and Acknowledge Remote Work Policy",
+    status: "incomplete",
+    progress: 0,
+    dueDate: "2024-03-23",
+    priority: "low",
+    acknowledgement: true,
+  },
+];
+
+// Updated initial messages for the new onboarding flow
 const initialMessages = [
   {
     id: "1",
     role: "assistant",
-    content: "Welcome to Axel! I'll be your personal assistant at TechCorp.",
+    content:
+      "Hi John! Welcome to Axel. Your onboarding journey is ready. Let me know if you have any questions!",
     documents: [
       {
         id: 1,
-        title: "TechCorp Welcome Guide",
+        title: "Onboarding Guide",
         relevance: 95,
-      },
-      {
-        id: 2,
-        title: "Employee Handbook",
-        relevance: 85,
-      },
-    ],
-  },
-  {
-    id: "2",
-    role: "assistant",
-    content:
-      "Hi Sarah, I've set up a personalized onboarding checklist for you. Let's begin by setting up your development environment.",
-    documents: [
-      {
-        id: 3,
-        title: "Onboarding Checklist",
-        relevance: 98,
-      },
-      {
-        id: 4,
-        title: "Development Setup Guide",
-        relevance: 92,
-      },
-    ],
-  },
-  {
-    id: "3",
-    role: "user",
-    content: "Great! What do I need to do?",
-  },
-  {
-    id: "4",
-    role: "assistant",
-    content:
-      "I'll guide you through the IDE setup process. Would you like me to guide you through each step?",
-    documents: [
-      {
-        id: 5,
-        title: "IDE Installation Guide",
-        relevance: 96,
-      },
-      {
-        id: 6,
-        title: "Development Tools Setup",
-        relevance: 90,
-      },
-    ],
-  },
-  {
-    id: "5",
-    role: "user",
-    content: "How do I set up my local development environment?",
-  },
-  {
-    id: "6",
-    role: "assistant",
-    content:
-      "I'll show you how to set up your local environment. Let me know if you need help with any of these steps!",
-    documents: [
-      {
-        id: 7,
-        title: "Local Environment Setup Guide",
-        relevance: 98,
-      },
-      {
-        id: 8,
-        title: "Development Best Practices",
-        relevance: 85,
-      },
-    ],
-  },
-  {
-    id: "7",
-    role: "assistant",
-    content:
-      "Sarah, let me show you your team structure and the meetings I've scheduled for your onboarding this week.",
-    documents: [
-      {
-        id: 9,
-        title: "Team Organization Chart",
-        relevance: 95,
-      },
-      {
-        id: 10,
-        title: "Meeting Schedule Template",
-        relevance: 88,
-      },
-    ],
-  },
-  {
-    id: "8",
-    role: "user",
-    content: "Yes, please show me my calendar.",
-  },
-  {
-    id: "9",
-    role: "assistant",
-    content: "Here's your schedule. You can adjust meeting times if needed.",
-    documents: [
-      {
-        id: 11,
-        title: "Onboarding Calendar",
-        relevance: 96,
-      },
-      {
-        id: 12,
-        title: "Meeting Guidelines",
-        relevance: 82,
-      },
-    ],
-  },
-  {
-    id: "10",
-    role: "assistant",
-    content:
-      "Your team's standup meeting starts in 10 minutes. The standup will be in Meeting Room 3 or join via Zoom: meeting-id-123",
-    documents: [
-      {
-        id: 13,
-        title: "Sprint Progress Report",
-        relevance: 94,
-      },
-      {
-        id: 14,
-        title: "Standup Meeting Protocol",
-        relevance: 88,
-      },
-    ],
-  },
-  {
-    id: "11",
-    role: "user",
-    content:
-      "Thanks, Axel! Can you also remind me to review the code repository afterward?",
-  },
-  {
-    id: "12",
-    role: "assistant",
-    content: "Done! I'll remind you after the meeting.",
-    documents: [
-      {
-        id: 15,
-        title: "Repository Access Guide",
-        relevance: 90,
-      },
-      {
-        id: 16,
-        title: "Code Review Guidelines",
-        relevance: 85,
-      },
-    ],
-  },
-  {
-    id: "13",
-    role: "user",
-    content: "Axel, can you show me my onboarding progress?",
-  },
-  {
-    id: "14",
-    role: "assistant",
-    content:
-      "You've completed 3 of 4 onboarding tasks (75% complete). Here's your progress:\n\nCompleted:\n- Development environment setup\n- Team introductions\n- Project access and tools\n\nRemaining:\n- HR Documentation\n\nWould you like to tackle the HR documentation next?",
-    documents: [
-      {
-        id: 17,
-        title: "Onboarding Progress Tracker",
-        relevance: 97,
-      },
-      {
-        id: 18,
-        title: "HR Documentation Guide",
-        relevance: 92,
-      },
-    ],
-  },
-  {
-    id: "15",
-    role: "user",
-    content: "Yes, let's do that.",
-  },
-  {
-    id: "16",
-    role: "assistant",
-    content:
-      "Great! You can access all the necessary forms at: hr.techcorp.com/onboarding. Let me know if you have any questions!",
-    documents: [
-      {
-        id: 19,
-        title: "HR Forms and Policies",
-        relevance: 96,
-      },
-      {
-        id: 20,
-        title: "Employee Documentation",
-        relevance: 88,
       },
     ],
   },
@@ -273,6 +126,164 @@ const fallbackResponse = {
   ],
 };
 
+// Task-specific responses and interactions
+const taskResponses = {
+  1: {
+    // Set Up Development Environment
+    initial: {
+      content:
+        "Let's set up your development environment. I'll guide you through each step:\n\n1. Install VS Code\n2. Set up essential extensions\n3. Clone the company repository\n4. Configure your local environment\n\nShall we start with installing VS Code?",
+      documents: [
+        { id: "dev-1", title: "Development Setup Guide", relevance: 98 },
+        { id: "dev-2", title: "VS Code Configuration", relevance: 95 },
+      ],
+    },
+    steps: {
+      vs_code: {
+        question: "I have VS Code installed",
+        response:
+          "Great! Let's install these essential extensions for our tech stack:\n\n1. ESLint\n2. Prettier\n3. GitLens\n4. React Developer Tools\n\nI'll help you configure them once installed. Let me know when you're ready.",
+        documents: [
+          { id: "dev-3", title: "VS Code Extensions Guide", relevance: 96 },
+        ],
+      },
+      extensions: {
+        question: "I've installed the extensions",
+        response:
+          "Perfect! Now let's clone the company repository. Here's the command:\n\n```bash\ngit clone https://github.com/company/main-repo.git\n```\n\nOnce cloned, I'll help you set up the environment variables.",
+        documents: [
+          { id: "dev-4", title: "Repository Setup Guide", relevance: 97 },
+        ],
+      },
+      repository: {
+        question: "I've cloned the repository",
+        response:
+          "Excellent! Let's set up your environment variables:\n\n1. Copy `.env.example` to `.env`\n2. I'll help you fill in the required values\n3. Run `npm install`\n4. Start the development server\n\nNeed the values for your .env file?",
+        documents: [
+          { id: "dev-5", title: "Environment Configuration", relevance: 98 },
+        ],
+      },
+      complete: {
+        question: "Yes, I need the env values",
+        response:
+          "Here are your development environment variables:\n\nAPI_KEY=dev_123456\nDATABASE_URL=localhost:5432\nREDIS_HOST=127.0.0.1\n\nOnce you've added these, run `npm run dev` to start the server. Let me know if you see the welcome screen!",
+        documents: [
+          { id: "dev-6", title: "Local Development Guide", relevance: 99 },
+        ],
+      },
+    },
+  },
+  2: {
+    // Submit Personal Documents
+    initial: {
+      content:
+        "For your personal documents, we need:\n\n1. Government-issued ID\n2. Proof of address (utility bill/bank statement)\n\nYou can securely upload them through our HR portal. Would you like me to guide you through the upload process?",
+      documents: [
+        { id: "doc-1", title: "Document Submission Guide", relevance: 98 },
+        { id: "doc-2", title: "HR Portal Instructions", relevance: 95 },
+      ],
+    },
+    steps: {
+      guide: {
+        question: "Yes, please guide me",
+        response:
+          "Here's how to upload your documents:\n\n1. Visit: hr.company.com/upload\n2. Login with your company email\n3. Click 'Submit Documents'\n4. Upload files in PDF format\n5. Add document descriptions\n\nThe portal is ready for your uploads. Need help with the file requirements?",
+        documents: [
+          { id: "doc-3", title: "Document Requirements", relevance: 97 },
+        ],
+      },
+      requirements: {
+        question: "What are the file requirements?",
+        response:
+          "Document requirements:\n\n- PDF format only\n- Max 5MB per file\n- Must be less than 3 months old\n- Clear, legible scan\n- Color copies preferred\n\nLet me know once you've uploaded the documents!",
+        documents: [
+          { id: "doc-4", title: "File Specifications", relevance: 96 },
+        ],
+      },
+      complete: {
+        question: "I've uploaded the documents",
+        response:
+          "Perfect! I can see your documents have been received. Our HR team will review them within 24 hours. I'll notify you once they're approved. Is there anything else you need help with?",
+        documents: [
+          { id: "doc-5", title: "Document Processing", relevance: 98 },
+        ],
+      },
+    },
+  },
+  3: {
+    // Complete Compliance Training
+    initial: {
+      content:
+        "Time for your compliance training! This includes:\n\n1. Data Security (15 mins)\n2. Code of Conduct (20 mins)\n3. Privacy Guidelines (10 mins)\n\nReady to start with the Data Security module?",
+      documents: [
+        { id: "train-1", title: "Compliance Training Overview", relevance: 98 },
+        { id: "train-2", title: "Training Schedule", relevance: 94 },
+      ],
+    },
+    steps: {
+      start: {
+        question: "Yes, I'm ready to start",
+        response:
+          "Great! I'm launching the Data Security module now. Key points to note:\n\n- Watch the full video\n- Take notes on security protocols\n- Quiz at the end (80% to pass)\n\nClick 'Start Module' when you're ready.",
+        documents: [
+          { id: "train-3", title: "Data Security Module", relevance: 97 },
+        ],
+      },
+      module_complete: {
+        question: "I've completed the module",
+        response:
+          "Excellent! You scored 90% on the Data Security quiz. Ready for the Code of Conduct module? This one covers:\n\n- Professional behavior\n- Communication guidelines\n- Conflict resolution\n\nShall we proceed?",
+        documents: [{ id: "train-4", title: "Code of Conduct", relevance: 96 }],
+      },
+      complete: {
+        question: "Yes, continue",
+        response:
+          "You've completed all compliance training modules!\n\nFinal Scores:\n- Data Security: 90%\n- Code of Conduct: 85%\n- Privacy Guidelines: 95%\n\nGreat job! You've passed all requirements.",
+        documents: [
+          { id: "train-5", title: "Training Completion", relevance: 99 },
+        ],
+      },
+    },
+  },
+  4: {
+    // Remote Work Policy
+    initial: {
+      content:
+        "Let's review our Remote Work Policy. Key sections:\n\n1. Work Hours and Availability\n2. Communication Guidelines\n3. Equipment and Security\n4. Performance Expectations\n\nWould you like me to walk you through each section?",
+      documents: [
+        { id: "policy-1", title: "Remote Work Policy", relevance: 98 },
+        { id: "policy-2", title: "Policy Guidelines", relevance: 95 },
+      ],
+    },
+    steps: {
+      review: {
+        question: "Yes, please explain",
+        response:
+          "Let's start with Work Hours and Availability:\n\n- Core hours: 10 AM - 4 PM (your local time)\n- Flexible schedule around core hours\n- Update calendar with availability\n- Respond within 2 hours during work hours\n\nShall we move to Communication Guidelines?",
+        documents: [
+          { id: "policy-3", title: "Work Hours Policy", relevance: 97 },
+        ],
+      },
+      communication: {
+        question: "Yes, tell me about communication",
+        response:
+          "Communication Guidelines:\n\n- Use Slack for quick questions\n- Email for formal communication\n- Daily standup at 10 AM\n- Weekly team meetings\n- Keep camera on during meetings\n\nReady to review Equipment and Security?",
+        documents: [
+          { id: "policy-4", title: "Communication Guidelines", relevance: 96 },
+        ],
+      },
+      complete: {
+        question: "Yes, I understand the policy",
+        response:
+          "Great! To complete this task, please acknowledge that you've read and understood the Remote Work Policy. Click the 'I Acknowledge' button below.\n\nNeed any clarification before proceeding?",
+        documents: [
+          { id: "policy-5", title: "Policy Acknowledgment", relevance: 99 },
+        ],
+      },
+    },
+  },
+};
+
 export function Chat({ onShowInstructions }) {
   const {
     messages: aiMessages,
@@ -283,12 +294,17 @@ export function Chat({ onShowInstructions }) {
   } = useChat({
     api: "/api/langGraph",
     body: {
-      user_id : "user-1",
-      name: "Sarah",
+      user_id: "user-1",
+      name: "John",
     },
-    streamProtocol: "text"
+    streamProtocol: "text",
   });
+
   const [messages, setMessages] = useState(initialMessages);
+  const [tasks, setTasks] = useState(onboardingTasks);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [currentStep, setCurrentStep] = useState(null);
   const messagesEndRef = useRef(null);
 
   // Auto scroll to bottom on new messages
@@ -296,7 +312,55 @@ export function Chat({ onShowInstructions }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Custom submit handler with default responses
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setCurrentStep("initial");
+    const taskResponse = taskResponses[task.id].initial;
+    const taskMessage = {
+      id: String(messages.length + 1),
+      role: "assistant",
+      content: taskResponse.content,
+      documents: taskResponse.documents,
+    };
+    setMessages((prev) => [...prev, taskMessage]);
+  };
+
+  const getNextStep = (taskId, currentStep) => {
+    const steps = Object.keys(taskResponses[taskId].steps);
+    const currentIndex = steps.indexOf(currentStep);
+    return steps[currentIndex + 1];
+  };
+
+  const handleTaskComplete = (taskId) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, status: "complete", progress: 100 }
+          : task
+      )
+    );
+
+    // Check if all tasks are complete
+    const allComplete = tasks.every((task) => task.status === "complete");
+    if (allComplete) {
+      setShowConfetti(true);
+      const completionMessage = {
+        id: String(messages.length + 1),
+        role: "assistant",
+        content:
+          "Congratulations, John! You've completed your onboarding journey. You're all set to start your role. If you need anything, I'm always here to help!",
+        documents: [
+          {
+            id: "completion",
+            title: "Onboarding Complete",
+            relevance: 100,
+          },
+        ],
+      };
+      setMessages((prev) => [...prev, completionMessage]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -308,20 +372,57 @@ export function Chat({ onShowInstructions }) {
       content: input,
     };
 
-    // Find matching response or use fallback
-    const lowercaseInput = input.toLowerCase();
-    const matchingResponse =
-      defaultResponses.find((response) =>
-        response.keywords.some((keyword) => lowercaseInput.includes(keyword))
-      ) || fallbackResponse;
+    let assistantMessage;
 
-    // Add assistant response
-    const assistantMessage = {
-      id: String(messages.length + 2),
-      role: "assistant",
-      content: matchingResponse.response,
-      documents: matchingResponse.documents,
-    };
+    if (selectedTask) {
+      const taskSteps = taskResponses[selectedTask.id].steps;
+      let nextResponse;
+
+      if (currentStep === "initial") {
+        // After initial message, move to first step
+        nextResponse = taskSteps[Object.keys(taskSteps)[0]];
+        setCurrentStep(Object.keys(taskSteps)[0]);
+      } else if (currentStep) {
+        // Move to next step in sequence
+        const nextStep = getNextStep(selectedTask.id, currentStep);
+        if (nextStep) {
+          nextResponse = taskSteps[nextStep];
+          setCurrentStep(nextStep);
+        } else {
+          // If no more steps, complete the task
+          handleTaskComplete(selectedTask.id);
+          nextResponse = {
+            response:
+              "Great job! You've completed this task. Would you like to move on to the next one?",
+            documents: [
+              { id: "completion", title: "Task Complete", relevance: 100 },
+            ],
+          };
+          setCurrentStep(null);
+        }
+      }
+
+      assistantMessage = {
+        id: String(messages.length + 2),
+        role: "assistant",
+        content: nextResponse.response,
+        documents: nextResponse.documents,
+      };
+    } else {
+      // Default responses for when no task is selected
+      const lowercaseInput = input.toLowerCase();
+      const matchingResponse =
+        defaultResponses.find((response) =>
+          response.keywords.some((keyword) => lowercaseInput.includes(keyword))
+        ) || fallbackResponse;
+
+      assistantMessage = {
+        id: String(messages.length + 2),
+        role: "assistant",
+        content: matchingResponse.response,
+        documents: matchingResponse.documents,
+      };
+    }
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     handleInputChange({ target: { value: "" } }); // Clear input
@@ -336,9 +437,71 @@ export function Chat({ onShowInstructions }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto h-[calc(100vh-96px)]"
+      className="max-w-7xl mx-auto h-[calc(100vh-96px)] flex gap-4"
     >
-      <Card className="bg-gray-900/50 border-gray-800 h-full flex flex-col">
+      {/* Left Panel - Task Modules */}
+      <Card className="w-1/3 bg-gray-900/50 border-gray-800 h-full flex flex-col">
+        <div className="p-4 border-b border-gray-800">
+          <h2 className="text-xl font-semibold text-white">Onboarding Tasks</h2>
+          <div className="mt-2 h-2 bg-gray-800 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-[#00ff9d]"
+              initial={{ width: "0%" }}
+              animate={{
+                width: `${
+                  (tasks.filter((t) => t.status === "complete").length /
+                    tasks.length) *
+                  100
+                }%`,
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <AnimatePresence>
+            {tasks.map((task, index) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                onClick={() => handleTaskClick(task)}
+                className={`cursor-pointer p-4 rounded-lg border ${
+                  task.status === "complete"
+                    ? "bg-[#00ff9d]/10 border-[#00ff9d]/30"
+                    : "bg-gray-800/50 border-gray-700/50"
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="font-medium">{task.title}</h3>
+                  <span
+                    className={`text-sm ${
+                      task.status === "complete"
+                        ? "text-[#00ff9d]"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {task.status === "complete" ? "Complete" : "Incomplete"}
+                  </span>
+                </div>
+                <div className="mt-2 h-1 bg-gray-800 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-[#00ff9d]"
+                    initial={{ width: "0%" }}
+                    animate={{ width: `${task.progress}%` }}
+                  />
+                </div>
+                <p className="text-sm text-gray-400 mt-2">
+                  Due: {task.dueDate}
+                </p>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </Card>
+
+      {/* Right Panel - Chat */}
+      <Card className="flex-1 bg-gray-900/50 border-gray-800 h-full flex flex-col">
         <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent hover:scrollbar-thumb-gray-600">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
@@ -358,41 +521,25 @@ export function Chat({ onShowInstructions }) {
                   <div
                     className={`max-w-[80%] ${
                       message.role === "user"
-                        ? "bg-[#00ff9d]/10 border-[1.5px] border-[#00ff9d]/30 dark:border-[#00ff9d]/20"
+                        ? "bg-[#00ff9d]/10 border-[1.5px] border-[#00ff9d]/30"
                         : "bg-gray-800/50 border border-gray-700/50"
                     } rounded-lg p-4`}
                   >
                     <MessageContent content={message.content} />
-                    {message.role === "assistant" &&
-                      hasInstructions(message.content) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onShowInstructions(true)}
-                          className="mt-3 text-[#00ff9d] hover:text-[#00ff9d] hover:bg-[#00ff9d]/10"
-                        >
-                          <ListChecks className="w-4 h-4 mr-2" />
-                          Show Instructions
-                        </Button>
-                      )}
+                    {message.role === "assistant" && message.documents && (
+                      <DocumentReference documents={message.documents} />
+                    )}
                   </div>
                 </div>
-                {message.role === "assistant" && message.documents && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <DocumentReference documents={message.documents} />
-                  </motion.div>
-                )}
               </motion.div>
             ))}
           </AnimatePresence>
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Chat Input */}
         <div className="p-4 border-t border-gray-800">
-          <form onSubmit={originalHandleSubmit} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               value={input}
               onChange={handleInputChange}
@@ -410,6 +557,17 @@ export function Chat({ onShowInstructions }) {
           </form>
         </div>
       </Card>
+
+      {showConfetti && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 pointer-events-none"
+        >
+          {/* Add your confetti animation component here */}
+        </motion.div>
+      )}
     </motion.div>
   );
 }
