@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import type { StepProps } from "../types";
 
-export function SecondStep({ onComplete, step }: StepProps) {
+export function SecondStep({ onComplete, step }) {
   const [subStepIndex, setSubStepIndex] = useState(0);
   const [profileProgress, setProfileProgress] = useState(0);
 
