@@ -11,3 +11,9 @@
     --radius: 0.5rem;
   }
 }
+
+::selection {
+  background: #000; /* or any other background color */
+  color: #fff;
+}
+

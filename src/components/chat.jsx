@@ -280,7 +280,14 @@ export function Chat({ onShowInstructions }) {
     handleInputChange,
     handleSubmit: originalHandleSubmit,
     isLoading,
-  } = useChat();
+  } = useChat({
+    api: "/api/langGraph",
+    body: {
+      user_id : "user-1",
+      name: "Sarah",
+    },
+    streamProtocol: "text"
+  });
   const [messages, setMessages] = useState(initialMessages);
   const messagesEndRef = useRef(null);
 
@@ -385,7 +392,7 @@ export function Chat({ onShowInstructions }) {
           <div ref={messagesEndRef} />
         </div>
         <div className="p-4 border-t border-gray-800">
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <form onSubmit={originalHandleSubmit} className="flex gap-2">
             <Input
               value={input}
               onChange={handleInputChange}
