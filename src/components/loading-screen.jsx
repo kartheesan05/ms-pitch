@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Loader2 } from "lucide-react";
+import { ArrowRight, Check, Loader2, MinusIcon, XIcon, Maximize2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function LoadingScreen({ onComplete }) {
@@ -416,3 +416,4 @@ export function LoadingScreen({ onComplete }) {
     </motion.div>
   );
 }
+``
