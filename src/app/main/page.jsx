@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { LoadingScreen } from "@/components/loading-screen";
 import { Chat } from "@/components/chat";
-import { Header } from "@/components/header";
-import { SidePanel } from "@/components/side-panel";
 import { AnimatePresence } from "framer-motion";
 
 // Initial steps data structure
@@ -63,16 +61,6 @@ const initialSteps = [
 
 export default function MainPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [steps, setSteps] = useState(initialSteps);
-  const [showSidePanel, setShowSidePanel] = useState(true);
-
-  const handleStepComplete = (index) => {
-    setSteps((prevSteps) =>
-      prevSteps.map((step, i) =>
-        i === index ? { ...step, completed: !step.completed } : step
-      )
-    );
-  };
 
   const handleSkipLoading = () => {
     setIsLoading(false);
@@ -90,12 +78,12 @@ export default function MainPage() {
         ) : (
           <div
             key="chat"
-            className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white"
+            className="min-h-screen text-white"
           >
             <div className="flex">
               <main>
                 <div className="container mx-auto p-4">
-                  <Chat onShowInstructions={setShowSidePanel} />
+                  <Chat/>
                 </div>
               </main>
             </div>
