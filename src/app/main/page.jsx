@@ -4,7 +4,8 @@ import { useState } from "react";
 import { LoadingScreen } from "@/components/loading-screen";
 import { Chat } from "@/components/chat";
 import { AppSidebar } from "@/components/app-sidebar";
-import { AnimatePresence } from "framer-motion";
+import { OnboardingExpanded } from "@/components/onboarding-expanded";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Initial steps data structure
 const initialSteps = [
@@ -63,6 +64,7 @@ const initialSteps = [
 export default function MainPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isOnboardingExpanded, setIsOnboardingExpanded] = useState(false);
 
   const handleSkipLoading = () => {
     setIsLoading(false);
@@ -70,6 +72,14 @@ export default function MainPage() {
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(prev => !prev);
+  };
+
+  const handleExpandOnboarding = () => {
+    setIsOnboardingExpanded(true);
+  };
+
+  const handleCloseOnboarding = () => {
+    setIsOnboardingExpanded(false);
   };
 
   return (
@@ -86,18 +96,35 @@ export default function MainPage() {
             key="chat"
             className="min-h-screen flex text-white bg-gradient-to-b from-neutral-900 to-black"
           >
-            {/* Sidebar with toggle functionality */}
-            <div className={`transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-0' : 'w-64'}`}>
-              <AppSidebar 
-                isCollapsed={isSidebarCollapsed} 
-                onToggle={toggleSidebar} 
-              />
-            </div>
-            
-            {/* Chat content area */}
-            <div className="flex-1 flex justify-center items-center">
-              <Chat isSidebarCollapsed={isSidebarCollapsed} />
-            </div>
+            <AnimatePresence>
+              {isOnboardingExpanded ? (
+                <motion.div
+                  key="onboarding-expanded"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 bg-neutral-900"
+                >
+                  <OnboardingExpanded onClose={handleCloseOnboarding} />
+                </motion.div>
+              ) : (
+                <>
+                  {/* Sidebar with toggle functionality */}
+                  <div className={`transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-0' : 'w-64'}`}>
+                    <AppSidebar 
+                      isCollapsed={isSidebarCollapsed} 
+                      onToggle={toggleSidebar} 
+                      onExpandOnboarding={handleExpandOnboarding}
+                    />
+                  </div>
+                  
+                  {/* Chat content area */}
+                  <div className="flex-1 flex justify-center items-center">
+                    <Chat isSidebarCollapsed={isSidebarCollapsed} />
+                  </div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </AnimatePresence>

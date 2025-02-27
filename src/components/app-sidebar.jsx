@@ -76,11 +76,24 @@ const chatHistory = [
   { id: 8, title: "Quarterly planning", date: "1 month ago", unread: false },
 ]
 
-export function AppSidebar({ isCollapsed, onToggle }) {
+export function AppSidebar({ isCollapsed, onToggle, onExpandOnboarding }) {
   const [showOnboarding, setShowOnboarding] = React.useState(true)
   const [showChatHistory, setShowChatHistory] = React.useState(true)
   const [expandedStep, setExpandedStep] = React.useState(null)
   const [selectedChat, setSelectedChat] = React.useState(null)
+
+  React.useEffect(() => {
+    const handleExpandOnboarding = () => {
+      if (onExpandOnboarding) {
+        onExpandOnboarding();
+      }
+    };
+
+    window.addEventListener("expand-onboarding", handleExpandOnboarding);
+    return () => {
+      window.removeEventListener("expand-onboarding", handleExpandOnboarding);
+    };
+  }, [onExpandOnboarding]);
 
   if (isCollapsed) {
     return (
@@ -96,23 +109,22 @@ export function AppSidebar({ isCollapsed, onToggle }) {
   }
 
   return (
-    <div className="h-full">
-      <Sidebar className="border-r bg-neutral-900 border-neutral-700 text-white h-full">
-        <SidebarHeader className="flex justify-end p-2">
-          <button
-            type="button"
-            className="p-2 rounded-md text-neutral-400 hover:text-white hover:bg-neutral-800"
-            onClick={onToggle}
-          >
-            <ChevronLeft className="h-5 w-5" />
-            <span className="sr-only">Hide Sidebar</span>
-          </button>
-        </SidebarHeader>
+    <div className="h-full relative">
+      {/* Toggle Button - Positioned on the right edge */}
+      <button
+        type="button"
+        className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 bg-neutral-900 border border-neutral-700 rounded-full p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 z-10 shadow-md"
+        onClick={onToggle}
+      >
+        <ChevronLeft className="h-4 w-4" />
+        <span className="sr-only">Hide Sidebar</span>
+      </button>
 
+      <Sidebar className="border-r bg-neutral-900 border-neutral-700 text-white h-full">
         <SidebarContent>
           {/* Onboarding Section */}
           <SidebarGroup>
-            <div className="flex items-center justify-between px-4 py-2">
+            <div className="flex items-center justify-between px-4 py-6">
               <SidebarGroupLabel className="flex items-center gap-2">
                 <span>Onboarding</span>
                 {showOnboarding && (
@@ -120,7 +132,9 @@ export function AppSidebar({ isCollapsed, onToggle }) {
                     variant="ghost"
                     size="sm"
                     className="h-6 px-2"
-                    onClick={() => window.dispatchEvent(new CustomEvent("expand-onboarding"))}
+                    onClick={() => {
+                      if (onExpandOnboarding) onExpandOnboarding();
+                    }}
                   >
                     <Expand className="h-4 w-4" />
                     <span className="sr-only">Expand All</span>
