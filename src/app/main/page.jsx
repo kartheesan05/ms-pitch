@@ -78,7 +78,7 @@ export default function MainPage() {
         ) : (
           <div
             key="chat"
-            className="min-h-screen flex justify-center items-center text-white bg-gradient-to-b from-zinc-900 to-black"
+            className="min-h-screen flex justify-center items-center text-white"
           >
             <Chat />
           </div>

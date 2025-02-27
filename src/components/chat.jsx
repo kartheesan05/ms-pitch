@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Loader2, Copy, ArrowDown, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useRef, useState } from "react";
 import { MessageContent } from "./message-content";
 import { cn } from "@/lib/utils";
@@ -45,22 +46,13 @@ export function Chat() {
     }
   };
 
-  // Check if we need to show the scroll button
-  const handleScroll = () => {
-    if (!scrollAreaRef.current) return;
-    
-    const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current;
-    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+  // Handle scroll events for scroll button visibility
+  const handleScroll = (event) => {
+    const viewport = event.currentTarget;
+    const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+    const isNearBottom = maxScroll - viewport.scrollTop < 100;
     setShowScrollButton(!isNearBottom);
   };
-
-  useEffect(() => {
-    const scrollArea = scrollAreaRef.current;
-    if (scrollArea) {
-      scrollArea.addEventListener("scroll", handleScroll);
-      return () => scrollArea.removeEventListener("scroll", handleScroll);
-    }
-  }, []);
 
   // Auto scroll to bottom on new messages
   useEffect(() => {
@@ -153,7 +145,11 @@ export function Chat() {
   return (
     <div className="h-[calc(100vh-2.5rem)] bg-neutral-900 text-white antialiased w-[70%] rounded-lg border border-zinc-800">
       <div className="max-w-full mx-auto h-full flex flex-col px-4">
-        <div className="flex-1 py-4 overflow-y-auto" ref={scrollAreaRef} onScroll={handleScroll}>
+        <ScrollArea 
+          className="flex-1 py-4" 
+          ref={scrollAreaRef}
+          onScroll={handleScroll}
+        >
           <div className="space-y-6 px-6">
             {error && (
               <div className="text-red-500 text-center p-2 bg-red-950/20 rounded">
@@ -184,7 +180,7 @@ export function Chat() {
                           "px-4 py-3 rounded-lg text-sm leading-relaxed break-words",
                           message.role === "user" 
                             ? "bg-zinc-800" 
-                            : "bg-transparent"
+                            : "bg-transparent w-full"
                         )}
                       >
                         <MessageContent content={message.content} />
@@ -241,18 +237,18 @@ export function Chat() {
               </motion.div>
             )}
           </div>
-          
-          {showScrollButton && (
-            <Button
-              size="icon"
-              variant="outline"
-              className="fixed bottom-20 right-8 rounded-full bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
-              onClick={scrollToBottom}
-            >
-              <ArrowDown className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        </ScrollArea>
+
+        {showScrollButton && (
+          <Button
+            size="icon"
+            variant="outline"
+            className="fixed bottom-20 right-8 rounded-full bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
+            onClick={scrollToBottom}
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        )}
 
         <form onSubmit={handleSubmit} className="py-4 flex gap-2 relative">
           <div className="relative flex-1 group">
