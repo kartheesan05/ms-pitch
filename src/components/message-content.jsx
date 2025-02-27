@@ -2,12 +2,20 @@
 
 import { motion, usePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
 import { ProgressIndicator } from "./progress-indicator";
 
 export function MessageContent({ content }) {
   const [displayedContent, setDisplayedContent] = useState("");
   const [isPresent] = usePresence();
   const [isDone, setIsDone] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Check if content contains progress information
   const getProgressInfo = (content) => {
@@ -58,6 +66,11 @@ export function MessageContent({ content }) {
 
   const progressInfo = getProgressInfo(content);
 
+  // If not client-side yet, show plain content to avoid hydration issues
+  if (!mounted) {
+    return <div className="whitespace-pre-wrap">{content}</div>;
+  }
+
   return (
     <div>
       <motion.div
@@ -66,7 +79,12 @@ export function MessageContent({ content }) {
         exit={{ opacity: 0 }}
         className="prose prose-invert max-w-none"
       >
-        {displayedContent}
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
+        >
+          {displayedContent}
+        </ReactMarkdown>
         {!isDone && (
           <motion.span
             initial={{ opacity: 0 }}

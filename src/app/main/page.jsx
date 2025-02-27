@@ -78,15 +78,9 @@ export default function MainPage() {
         ) : (
           <div
             key="chat"
-            className="min-h-screen text-white"
+            className="min-h-screen flex justify-center items-center text-white"
           >
-            <div className="flex">
-              <main>
-                <div className="container mx-auto p-4">
-                  <Chat/>
-                </div>
-              </main>
-            </div>
+            <Chat />
           </div>
         )}
       </AnimatePresence>
