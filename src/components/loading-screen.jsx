@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Check, Loader2, MinusIcon, XIcon, Maximize2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
-export function LoadingScreen({ onComplete }) {
+export function LoadingScreen({ onComplete, onSkip }) {
   const [isReady, setIsReady] = useState(false);
   const [client, setClient] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
@@ -387,6 +388,16 @@ export function LoadingScreen({ onComplete }) {
           Continue
           <ArrowRight className="w-4 h-4" />
         </motion.button>
+
+        <div className="mt-8 flex justify-center">
+          <Button 
+            onClick={onSkip}
+            variant="ghost" 
+            className="text-gray-500 hover:text-white hover:bg-gray-800"
+          >
+            Skip Loading
+          </Button>
+        </div>
       </div>
 
       {/* Floating particles */}
@@ -416,4 +427,3 @@ export function LoadingScreen({ onComplete }) {
     </motion.div>
   );
 }
-``
