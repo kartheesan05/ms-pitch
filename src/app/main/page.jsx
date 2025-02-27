@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LoadingScreen } from "@/components/loading-screen";
 import { Chat } from "@/components/chat";
+import { AppSidebar } from "@/components/app-sidebar";
 import { AnimatePresence } from "framer-motion";
 
 // Initial steps data structure
@@ -61,9 +62,14 @@ const initialSteps = [
 
 export default function MainPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const handleSkipLoading = () => {
     setIsLoading(false);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => !prev);
   };
 
   return (
@@ -78,9 +84,20 @@ export default function MainPage() {
         ) : (
           <div
             key="chat"
-            className="min-h-screen flex justify-center items-center text-white"
+            className="min-h-screen flex text-white bg-gradient-to-b from-neutral-900 to-black"
           >
-            <Chat />
+            {/* Sidebar with toggle functionality */}
+            <div className={`transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-0' : 'w-64'}`}>
+              <AppSidebar 
+                isCollapsed={isSidebarCollapsed} 
+                onToggle={toggleSidebar} 
+              />
+            </div>
+            
+            {/* Chat content area */}
+            <div className="flex-1 flex justify-center items-center">
+              <Chat isSidebarCollapsed={isSidebarCollapsed} />
+            </div>
           </div>
         )}
       </AnimatePresence>

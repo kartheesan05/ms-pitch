@@ -25,7 +25,7 @@ const CubeLoader = ({ size = 14, className }) => (
   </motion.div>
 );
 
-export function Chat() {
+export function Chat({ isSidebarCollapsed }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -143,7 +143,10 @@ export function Chat() {
   };
 
   return (
-    <div className="h-[calc(100vh-2.5rem)] bg-neutral-900 text-white antialiased w-[70%] rounded-lg border border-zinc-800">
+    <div className={cn(
+      "h-[calc(100vh-2.5rem)] bg-neutral-900 text-white antialiased rounded-lg border border-zinc-800 transition-all duration-300",
+      isSidebarCollapsed ? "w-[90%]" : "w-[80%]"
+    )}>
       <div className="max-w-full mx-auto h-full flex flex-col px-4">
         <ScrollArea 
           className="flex-1 py-4" 
