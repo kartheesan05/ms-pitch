@@ -439,66 +439,6 @@ export function Chat({ onShowInstructions }) {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto h-[calc(100vh-96px)] flex gap-4"
     >
-      {/* Left Panel - Task Modules */}
-      <Card className="w-1/3 bg-gray-900/50 border-gray-800 h-full flex flex-col">
-        <div className="p-4 border-b border-gray-800">
-          <h2 className="text-xl font-semibold text-white">Onboarding Tasks</h2>
-          <div className="mt-2 h-2 bg-gray-800 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-[#00ff9d]"
-              initial={{ width: "0%" }}
-              animate={{
-                width: `${
-                  (tasks.filter((t) => t.status === "complete").length /
-                    tasks.length) *
-                  100
-                }%`,
-              }}
-            />
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <AnimatePresence>
-            {tasks.map((task, index) => (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => handleTaskClick(task)}
-                className={`cursor-pointer p-4 rounded-lg border ${
-                  task.status === "complete"
-                    ? "bg-[#00ff9d]/10 border-[#00ff9d]/30"
-                    : "bg-gray-800/50 border-gray-700/50"
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">{task.title}</h3>
-                  <span
-                    className={`text-sm ${
-                      task.status === "complete"
-                        ? "text-[#00ff9d]"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {task.status === "complete" ? "Complete" : "Incomplete"}
-                  </span>
-                </div>
-                <div className="mt-2 h-1 bg-gray-800 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-[#00ff9d]"
-                    initial={{ width: "0%" }}
-                    animate={{ width: `${task.progress}%` }}
-                  />
-                </div>
-                <p className="text-sm text-gray-400 mt-2">
-                  Due: {task.dueDate}
-                </p>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </Card>
 
       {/* Right Panel - Chat */}
       <Card className="flex-1 bg-gray-900/50 border-gray-800 h-full flex flex-col">
