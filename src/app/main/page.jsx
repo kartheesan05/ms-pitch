@@ -93,12 +93,6 @@ export default function MainPage() {
             className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white"
           >
             <div className="flex">
-              {/* <SidePanel
-                steps={steps}
-                onStepComplete={handleStepComplete}
-                isOpen={showSidePanel}
-                onOpenChange={setShowSidePanel}
-              /> */}
               <main>
                 <div className="container mx-auto p-4">
                   <Chat onShowInstructions={setShowSidePanel} />

@@ -15,7 +15,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Add your authentication logic here
-    router.push("/"); // Redirect to chat page after successful login
+    router.push("/main"); // Redirect to chat page after successful login
   };
 
   return (
