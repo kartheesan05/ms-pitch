@@ -9,6 +9,9 @@ import { useEffect, useRef, useState } from "react";
 import { MessageContent } from "./message-content";
 import { cn } from "@/lib/utils";
 
+// The URL of your local backend server
+const BACKEND_URL = "http://localhost:8000/query";
+
 const CubeLoader = ({ size = 14, className }) => (
   <motion.div
     animate={{
@@ -33,6 +36,7 @@ export function Chat({ isSidebarCollapsed }) {
   const [copied, setCopied] = useState(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [error, setError] = useState(null);
+  const [streamedText, setStreamedText] = useState("");
   
   const scrollAreaRef = useRef(null);
   const latestMessageRef = useRef(null);
@@ -56,10 +60,10 @@ export function Chat({ isSidebarCollapsed }) {
 
   // Auto scroll to bottom on new messages
   useEffect(() => {
-    if (!isLoading && messages.length > 0) {
+    if (messages.length > 0) {
       scrollToBottom();
     }
-  }, [messages, isLoading]);
+  }, [messages, streamedText]);
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -94,36 +98,78 @@ export function Chat({ isSidebarCollapsed }) {
     setInput("");
     setIsLoading(true);
     setIsStreaming(true);
+    setStreamedText("");
 
     try {
-      // Make API call to chat endpoint
-      const response = await fetch("/api/chat", {
+      // Create a placeholder message for streaming content
+      const streamMessageId = String(Date.now() + 1);
+      setMessages((prev) => [...prev, {
+        id: streamMessageId,
+        role: "assistant",
+        content: "",
+        isStreaming: true
+      }]);
+      
+      // Create form data for the request
+      const formData = new FormData();
+      
+      // Add the user's latest message as query
+      formData.append('role', 'user');
+      formData.append('query', input);
+      
+      // Add conversation history if needed
+      if (messages.length > 0) {
+        // Include previous conversation as context
+        const history = messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+        // formData.append('history', JSON.stringify(history));
+      }
+
+      // Make direct API call to the backend server with form data
+      const response = await fetch(BACKEND_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
         throw new Error('Failed to get response');
       }
 
-      const data = await response.json();
-      
-      // Add assistant response with markdown content
-      const assistantMessage = {
-        id: String(Date.now() + 1),
-        role: "assistant",
-        content: data.content || "I don't have a response for that yet.",
-      };
+      // Handle streaming response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        accumulatedText += chunk;
+        
+        // Update the message being streamed
+        setMessages((prevMessages) => 
+          prevMessages.map((msg) => 
+            msg.id === streamMessageId 
+              ? { ...msg, content: accumulatedText, isStreaming: true } 
+              : msg
+          )
+        );
+        
+        setStreamedText(accumulatedText); // This helps trigger the scroll effect
+      }
+
+      // Complete the streamed message
+      setMessages((prevMessages) => 
+        prevMessages.map((msg) => 
+          msg.id === streamMessageId 
+            ? { ...msg, content: accumulatedText, isStreaming: false } 
+            : msg
+        )
+      );
+
     } catch (error) {
       console.error("Error getting chat response:", error);
       setError("Something went wrong. Please try again.");
@@ -187,8 +233,11 @@ export function Chat({ isSidebarCollapsed }) {
                         )}
                       >
                         <MessageContent content={message.content} />
+                        {message.isStreaming && (
+                          <span className="inline-block ml-1 animate-pulse">▋</span>
+                        )}
                       </div>
-                      {message.role === "assistant" && message.content && (
+                      {message.role === "assistant" && message.content && !message.isStreaming && (
                         <div className="mt-2 flex justify-start">
                           <Button
                             size="sm"
@@ -208,7 +257,7 @@ export function Chat({ isSidebarCollapsed }) {
             </AnimatePresence>
             
             {/* Loading indicator when waiting for response */}
-            {isLoading && (
+            {isLoading && !isStreaming && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
